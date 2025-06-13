@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:reaction_check_app/services/preferences_service.dart';
 
 import '../state/home_state.dart';
 
@@ -48,6 +49,13 @@ class HomeViewModel extends _$HomeViewModel {
             .now()
             .millisecondsSinceEpoch;
         final reactionTime = now - state.startTimeStamp;
+        
+        // 🎯 bestScore 업데이트 로직
+        final currentBest = ref.read(bestScoreProvider);
+        if (currentBest == null || reactionTime < currentBest) {
+          ref.read(bestScoreProvider.notifier).setBestScore(reactionTime);
+        }
+        
         state = state.copyWith(
           status: GameStatus.finished,
           reactionTime: reactionTime,

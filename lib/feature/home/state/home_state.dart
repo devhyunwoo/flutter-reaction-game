@@ -23,7 +23,7 @@ enum GameStatus {
     GameStatus.initial => Colors.white,               // 🎯 새로 추가
     GameStatus.waiting => Colors.white,
     GameStatus.ready => Colors.green,
-    GameStatus.finished => Colors.red,
+    GameStatus.finished => Colors.blueGrey,
     GameStatus.preClicked => Colors.yellow,
   };
 }
