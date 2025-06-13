@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:reaction_check_app/services/preferences_service.dart';
 
 import '../model/home_view_model.dart';
@@ -13,6 +14,10 @@ class HomeView extends ConsumerWidget {
     final homeState = ref.watch(homeViewModelProvider);
     final viewModel = ref.read(homeViewModelProvider.notifier);
     final bestScore = ref.watch(bestScoreProvider);
+    final gameCount = ref.watch(gameCountProvider);
+    final averageScore = ref.watch(averageScoreProvider);
+    final achievements = ref.watch(achievementsProvider);
+    
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -35,6 +40,39 @@ class HomeView extends ConsumerWidget {
           ],
         ),
         centerTitle: true,
+        actions: [
+          // 📊 통계 아이콘
+          IconButton(
+            onPressed: () {
+              context.push('/statistics');
+            },
+            icon: Stack(
+              children: [
+                const Icon(Icons.bar_chart, color: Colors.white),
+                if (achievements.isNotEmpty)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.yellow,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // ⚙️ 설정 아이콘
+          IconButton(
+            onPressed: () {
+              context.push('/settings');
+            },
+            icon: const Icon(Icons.settings, color: Colors.white),
+          ),
+        ],
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -51,11 +89,11 @@ class HomeView extends ConsumerWidget {
         elevation: 0,
         shadowColor: Colors.transparent,
       ),
-      body: _buildBody(homeState, viewModel, bestScore),
+      body: _buildBody(homeState, viewModel, bestScore, gameCount, averageScore, achievements),
     );
   }
 
-  Widget _buildBody(HomeState homeState, HomeViewModel viewModel, int? bestScore) {
+  Widget _buildBody(HomeState homeState, HomeViewModel viewModel, int? bestScore, int gameCount, double averageScore, List<String> achievements) {
     // 🎯 initial 상태일 때만 게임 시작 화면 (조건 단순화!)
     if (homeState.status == GameStatus.initial) {
       return Container(
@@ -72,12 +110,13 @@ class HomeView extends ConsumerWidget {
             ],
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 20),
                 // 🎮 메인 카드
                 Container(
                   width: double.infinity,
@@ -162,41 +201,89 @@ class HomeView extends ConsumerWidget {
                           ),
                         ),
                         
-                        // 🏆 최고 기록 표시 (있으면)
-                        if (bestScore != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.amber.shade300, Colors.amber.shade400],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.emoji_events,
-                                  color: Colors.white,
-                                  size: 18,
+                        // 📊 통계 정보들
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            children: [
+                              // 🏆 최고 기록
+                              if (bestScore != null) ...[
+                                Row(
+                                  children: [
+                                    Icon(Icons.emoji_events, color: Colors.amber.shade600, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '최고 기록: ${bestScore}ms',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade800,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '현재 최고: ${bestScore}ms',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                const SizedBox(height: 8),
+                              ],
+                              
+                              // 🎮 게임 횟수
+                              Row(
+                                children: [
+                                  Icon(Icons.sports_esports, color: Colors.blue.shade600, size: 20),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '게임 횟수: ${gameCount}회',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                    ),
                                   ),
+                                ],
+                              ),
+                              
+                              // 📈 평균 점수
+                              if (gameCount > 0) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.trending_up, color: Colors.green.shade600, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '평균 점수: ${averageScore.toStringAsFixed(1)}ms',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
+                              
+                              // 🏅 업적 개수
+                              if (achievements.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.military_tech, color: Colors.purple.shade600, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '업적 달성: ${achievements.length}개',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
+                        ),
                       ],
                     ),
                   ),
@@ -273,12 +360,13 @@ class HomeView extends ConsumerWidget {
             ],
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32.0),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 20),
                 // 🎉 결과 카드
                 Container(
                   width: double.infinity,
@@ -355,48 +443,116 @@ class HomeView extends ConsumerWidget {
                           ),
                         ),
                         
-                        // 🏆 최고 기록 (있을 때만)
-                        if (bestScore != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.amber.shade300,
-                                  Colors.amber.shade500,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.amber.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.emoji_events,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '최고 기록: ${bestScore}ms',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                        const SizedBox(height: 20),
+                        
+                        // 📊 상세 통계 정보
+                        Row(
+                          children: [
+                            // 🏆 최고 기록
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.amber.shade300, Colors.amber.shade500],
                                   ),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
+                                child: Column(
+                                  children: [
+                                    const Icon(Icons.emoji_events, color: Colors.white, size: 20),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${bestScore ?? 0}ms',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '최고기록',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 8),
+                            
+                            // 📈 평균 점수
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.green.shade300, Colors.green.shade500],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Icon(Icons.trending_up, color: Colors.white, size: 20),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${averageScore.toStringAsFixed(1)}ms',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '평균점수',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            
+                            // 🎮 게임 횟수
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Colors.blue.shade300, Colors.blue.shade500],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Icon(Icons.sports_esports, color: Colors.white, size: 20),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '${gameCount}회',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const Text(
+                                      '게임횟수',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -475,12 +631,13 @@ class HomeView extends ConsumerWidget {
               ],
             ),
           ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 40),
                   // 🕐 대기 애니메이션 아이콘
                   Container(
                     width: 120,
@@ -700,12 +857,13 @@ class HomeView extends ConsumerWidget {
               ],
             ),
           ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 40),
                   // 😅 너무 빨라요 아이콘
                   Container(
                     width: 120,
