@@ -15,18 +15,11 @@ final _privateConstructorUsedError = UnsupportedError(
   'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
 );
 
-HomeState _$HomeStateFromJson(Map<String, dynamic> json) {
-  return _HomeState.fromJson(json);
-}
-
 /// @nodoc
 mixin _$HomeState {
-  int get timeStamp => throw _privateConstructorUsedError;
-  bool get isStart => throw _privateConstructorUsedError;
-  bool get isEnd => throw _privateConstructorUsedError;
-
-  /// Serializes this HomeState to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+  GameStatus get status => throw _privateConstructorUsedError; // 🎯 initial로 시작
+  int get reactionTime => throw _privateConstructorUsedError;
+  int get startTimeStamp => throw _privateConstructorUsedError;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -40,7 +33,7 @@ abstract class $HomeStateCopyWith<$Res> {
   factory $HomeStateCopyWith(HomeState value, $Res Function(HomeState) then) =
       _$HomeStateCopyWithImpl<$Res, HomeState>;
   @useResult
-  $Res call({int timeStamp, bool isStart, bool isEnd});
+  $Res call({GameStatus status, int reactionTime, int startTimeStamp});
 }
 
 /// @nodoc
@@ -58,24 +51,24 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? timeStamp = null,
-    Object? isStart = null,
-    Object? isEnd = null,
+    Object? status = null,
+    Object? reactionTime = null,
+    Object? startTimeStamp = null,
   }) {
     return _then(
       _value.copyWith(
-            timeStamp: null == timeStamp
-                ? _value.timeStamp
-                : timeStamp // ignore: cast_nullable_to_non_nullable
+            status: null == status
+                ? _value.status
+                : status // ignore: cast_nullable_to_non_nullable
+                      as GameStatus,
+            reactionTime: null == reactionTime
+                ? _value.reactionTime
+                : reactionTime // ignore: cast_nullable_to_non_nullable
                       as int,
-            isStart: null == isStart
-                ? _value.isStart
-                : isStart // ignore: cast_nullable_to_non_nullable
-                      as bool,
-            isEnd: null == isEnd
-                ? _value.isEnd
-                : isEnd // ignore: cast_nullable_to_non_nullable
-                      as bool,
+            startTimeStamp: null == startTimeStamp
+                ? _value.startTimeStamp
+                : startTimeStamp // ignore: cast_nullable_to_non_nullable
+                      as int,
           )
           as $Val,
     );
@@ -91,7 +84,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
   ) = __$$HomeStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({int timeStamp, bool isStart, bool isEnd});
+  $Res call({GameStatus status, int reactionTime, int startTimeStamp});
 }
 
 /// @nodoc
@@ -108,54 +101,52 @@ class __$$HomeStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? timeStamp = null,
-    Object? isStart = null,
-    Object? isEnd = null,
+    Object? status = null,
+    Object? reactionTime = null,
+    Object? startTimeStamp = null,
   }) {
     return _then(
       _$HomeStateImpl(
-        timeStamp: null == timeStamp
-            ? _value.timeStamp
-            : timeStamp // ignore: cast_nullable_to_non_nullable
+        status: null == status
+            ? _value.status
+            : status // ignore: cast_nullable_to_non_nullable
+                  as GameStatus,
+        reactionTime: null == reactionTime
+            ? _value.reactionTime
+            : reactionTime // ignore: cast_nullable_to_non_nullable
                   as int,
-        isStart: null == isStart
-            ? _value.isStart
-            : isStart // ignore: cast_nullable_to_non_nullable
-                  as bool,
-        isEnd: null == isEnd
-            ? _value.isEnd
-            : isEnd // ignore: cast_nullable_to_non_nullable
-                  as bool,
+        startTimeStamp: null == startTimeStamp
+            ? _value.startTimeStamp
+            : startTimeStamp // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
 }
 
 /// @nodoc
-@JsonSerializable()
+
 class _$HomeStateImpl implements _HomeState {
   const _$HomeStateImpl({
-    this.timeStamp = 0,
-    this.isStart = false,
-    this.isEnd = false,
+    this.status = GameStatus.initial,
+    this.reactionTime = 0,
+    this.startTimeStamp = 0,
   });
 
-  factory _$HomeStateImpl.fromJson(Map<String, dynamic> json) =>
-      _$$HomeStateImplFromJson(json);
-
   @override
   @JsonKey()
-  final int timeStamp;
+  final GameStatus status;
+  // 🎯 initial로 시작
   @override
   @JsonKey()
-  final bool isStart;
+  final int reactionTime;
   @override
   @JsonKey()
-  final bool isEnd;
+  final int startTimeStamp;
 
   @override
   String toString() {
-    return 'HomeState(timeStamp: $timeStamp, isStart: $isStart, isEnd: $isEnd)';
+    return 'HomeState(status: $status, reactionTime: $reactionTime, startTimeStamp: $startTimeStamp)';
   }
 
   @override
@@ -163,15 +154,16 @@ class _$HomeStateImpl implements _HomeState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$HomeStateImpl &&
-            (identical(other.timeStamp, timeStamp) ||
-                other.timeStamp == timeStamp) &&
-            (identical(other.isStart, isStart) || other.isStart == isStart) &&
-            (identical(other.isEnd, isEnd) || other.isEnd == isEnd));
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.reactionTime, reactionTime) ||
+                other.reactionTime == reactionTime) &&
+            (identical(other.startTimeStamp, startTimeStamp) ||
+                other.startTimeStamp == startTimeStamp));
   }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, timeStamp, isStart, isEnd);
+  int get hashCode =>
+      Object.hash(runtimeType, status, reactionTime, startTimeStamp);
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -180,29 +172,21 @@ class _$HomeStateImpl implements _HomeState {
   @pragma('vm:prefer-inline')
   _$$HomeStateImplCopyWith<_$HomeStateImpl> get copyWith =>
       __$$HomeStateImplCopyWithImpl<_$HomeStateImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$HomeStateImplToJson(this);
-  }
 }
 
 abstract class _HomeState implements HomeState {
   const factory _HomeState({
-    final int timeStamp,
-    final bool isStart,
-    final bool isEnd,
+    final GameStatus status,
+    final int reactionTime,
+    final int startTimeStamp,
   }) = _$HomeStateImpl;
 
-  factory _HomeState.fromJson(Map<String, dynamic> json) =
-      _$HomeStateImpl.fromJson;
-
   @override
-  int get timeStamp;
+  GameStatus get status; // 🎯 initial로 시작
   @override
-  bool get isStart;
+  int get reactionTime;
   @override
-  bool get isEnd;
+  int get startTimeStamp;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

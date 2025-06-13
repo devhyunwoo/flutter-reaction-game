@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../state/home_state.dart';
@@ -13,39 +14,66 @@ class HomeViewModel extends _$HomeViewModel {
 
   @override
   HomeState build() {
-    start();
+    ref.onDispose(() {
+      _delayTimer?.cancel();
+    });
+    
     return const HomeState();
   }
 
-  void start() {
+  void startGame() {
+    startCountdown();
+  }
+
+  void startCountdown() {
     _delayTimer?.cancel();
-    final randomDelay = Random().nextInt(10);
-    _delayTimer = Timer(Duration(seconds: randomDelay), () {
+
+    state = state.copyWith(status: GameStatus.waiting);
+
+    final randomSeconds = Random().nextInt(5) + 2;
+    _delayTimer = Timer(Duration(seconds: randomSeconds), () {
       state = state.copyWith(
-        isStart: true,
-        timeStamp: DateTime.now().millisecondsSinceEpoch,
+        status: GameStatus.ready,
+        startTimeStamp: DateTime
+            .now()
+            .millisecondsSinceEpoch,
       );
     });
   }
 
-  String get displayText {
-    return switch ((state.isStart, state.isEnd)) {
-      (true, false) => '시작! 터치해라!',
-      (false, true) => '오 빠른데?ㅋ\n${state.timeStamp}ms',
-      _ => '시작하면 해라 ㅋ',
-    };
-  }
-
   void touch() {
-    if (state.isStart) {
-      final timeStamp = DateTime.now().millisecondsSinceEpoch - state.timeStamp;
-      state = state.copyWith(
-        isStart: false,
-        isEnd: true,
-        timeStamp: timeStamp,
-      );
-    } else {
-      _delayTimer?.cancel();
+    switch (state.status) {
+      case GameStatus.ready:
+        final now = DateTime
+            .now()
+            .millisecondsSinceEpoch;
+        final reactionTime = now - state.startTimeStamp;
+        state = state.copyWith(
+          status: GameStatus.finished,
+          reactionTime: reactionTime,
+        );
+        break;
+
+      case GameStatus.waiting:
+        _delayTimer?.cancel();
+        state = state.copyWith(status: GameStatus.preClicked);
+        break;
+
+      case GameStatus.finished:
+      case GameStatus.preClicked:
+        state = state.copyWith(
+          status: GameStatus.initial,
+          reactionTime: 0,
+          startTimeStamp: 0,
+        );
+        break;
+        
+      case GameStatus.initial:
+        break;
     }
   }
+
+  String get displayText => state.status.getText(state.reactionTime);
+
+  Color get backgroundColor => state.status.backgroundColor;
 }
