@@ -24,7 +24,7 @@ final sharedPreferencesProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef SharedPreferencesRef = AutoDisposeProviderRef<SharedPreferences>;
-String _$bestScoreHash() => r'7552a511a6730333c0e6c1cdd490805349a71f2e';
+String _$bestScoreHash() => r'e255aff9bab666b914bb95113a9bf49f875ec5e9';
 
 /// See also [BestScore].
 @ProviderFor(BestScore)

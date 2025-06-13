@@ -10,10 +10,10 @@ SharedPreferences sharedPreferences(Ref ref) {
   throw UnimplementedError(); // main에서 override 할 거예요
 }
 
-// 사용자 이름 관리 클래스
+// 최고 점수 관리 클래스
 @riverpod
 class BestScore extends _$BestScore {
-  static const String _key = 'bast_score';
+  static const String _key = 'best_score';
 
   @override
   int? build() {
