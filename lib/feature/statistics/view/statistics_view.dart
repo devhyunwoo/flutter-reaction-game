@@ -586,12 +586,11 @@ class StatisticsView extends ConsumerWidget {
               height: (allAchievements.length / 2).ceil() * 120.0, // 고정 높이 설정
               child: GridView.builder(
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.3,
+                  childAspectRatio: 0.8,
                 ),
                 itemCount: allAchievements.length,
                 itemBuilder: (context, index) {
